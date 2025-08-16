@@ -1,0 +1,84 @@
+@use '@angular/material' as mat;
+@import "theme";
+
+$primary: map-get($theme, primary);
+$accent: map-get($theme, accent);
+
+$config: mat.define-typography-config();
+
+.no-click {
+	user-select: none;
+	pointer-events: none;
+}
+
+.event-row-icon {
+	color: #b8b8b8;
+	float: left;
+	margin-right: 5px;
+	font-size: 14px;
+	line-height: 26px;
+	height: 26px; //Force default height even if icon is smaller
+	text-align: center;
+	flex-shrink: 0; //Keeps icon at fixed size no matter width of the parent
+	margin-top: 0;
+	margin-bottom: auto;
+}
+
+
+.event-row-text {
+	line-height: 26px;
+	display: flex;
+	flex-direction: row;
+	padding-right: 15px; //Padding has to be greater than the width of the scrollbar otherwise the scrollbar covers the text inside when it's visible
+	padding-left: 6px;
+}
+
+.event-row {
+	user-select: none;
+	margin-right: 8px;
+
+	// used to grow last element in list, but makes elements not full width
+	//flex-grow: 1;
+	//flex-direction: column;
+	
+	&:focus {
+		border: none;
+		outline: none;
+	}
+
+	&:active {
+		border: none;
+		outline: none;
+		background-color: rgba(38, 78, 100, 0.5);
+	}
+
+	&.last-row {
+		position: relative;
+		min-height: 30px;
+	}
+}
+
+.event-row-focused {
+	border: none;
+	outline: none;
+	background-color: rgb(38, 78, 100) !important;
+}
+
+button {
+	display: flex;
+	flex-direction: row;
+	width: 100%;
+	text-transform: none;
+	$font-type: subtitle-1;
+	font-family: mat.font-family($config);
+	font-size: mat.font-size($config, $font-type);
+	font-weight: mat.font-weight($config, $font-type);
+	background: none;
+	color: white;
+	border: none;
+	padding: 0;
+	margin: 0;
+	text-decoration: none;
+	cursor: pointer;
+	text-align: start;
+}

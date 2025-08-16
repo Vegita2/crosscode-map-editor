@@ -1,19 +1,19 @@
-import {Component, ComponentFactoryResolver, OnInit, ViewChild, ViewContainerRef} from '@angular/core';
-import {AttributeValue, CCEntity} from '../../shared/phaser/entities/cc-entity';
-import {CCMap} from '../../shared/phaser/tilemap/cc-map';
-import {HostDirective} from '../../shared/host.directive';
-import {AbstractWidget} from '../../shared/widgets/abstract-widget';
-import {WidgetRegistryService} from '../../shared/widgets/widget-registry.service';
-import {Vec2WidgetComponent} from '../../shared/widgets/vec2-widget/vec2-widget.component';
-import {GlobalEventsService} from '../../shared/global-events.service';
-import {MapLoaderService} from '../../shared/map-loader.service';
+import { Component, ViewChild, ViewContainerRef } from '@angular/core';
+import { HostDirective } from '../../directives/host.directive';
+import { GlobalEventsService } from '../../services/global-events.service';
+import { MapLoaderService } from '../../services/map-loader.service';
+import { AttributeValue, CCEntity } from '../../services/phaser/entities/cc-entity';
+import { CCMap } from '../../services/phaser/tilemap/cc-map';
+import { AbstractWidget } from '../widgets/abstract-widget';
+import { Vec2WidgetComponent } from '../widgets/vec2-widget/vec2-widget.component';
+import { WidgetRegistryService } from '../widgets/widget-registry.service';
 
 @Component({
 	selector: 'app-entities',
 	templateUrl: './entities.component.html',
 	styleUrls: ['./entities.component.scss']
 })
-export class EntitiesComponent implements OnInit {
+export class EntitiesComponent {
 	@ViewChild(HostDirective, {static: false}) appHost?: HostDirective;
 	entity?: CCEntity;
 	map?: CCMap;
@@ -21,7 +21,6 @@ export class EntitiesComponent implements OnInit {
 	hideFilter = false;
 	
 	constructor(
-		private componentFactoryResolver: ComponentFactoryResolver,
 		private widgetRegistry: WidgetRegistryService,
 		private events: GlobalEventsService,
 		loader: MapLoaderService
@@ -39,9 +38,6 @@ export class EntitiesComponent implements OnInit {
 			this.map = map;
 			this.filter = '';
 		});
-	}
-	
-	ngOnInit() {
 	}
 	
 	loadSettings(entity?: CCEntity) {
@@ -67,9 +63,11 @@ export class EntitiesComponent implements OnInit {
 			);
 			vec2Widget.def = def;
 		}
+		const widgets: Record<string, AbstractWidget> = {};
 		Object.entries(entity.getAttributes()).forEach(([key, val]) => {
-			this.generateWidget(entity, key, val, ref);
+			widgets[key] = this.generateWidget(entity, key, val, ref);
 		});
+		entity.setWidgets(widgets);
 	}
 	
 	updateFilter() {
@@ -77,8 +75,7 @@ export class EntitiesComponent implements OnInit {
 	}
 	
 	private generateWidget(entity: CCEntity, key: string, val: AttributeValue, ref: ViewContainerRef) {
-		const componentFactory = this.componentFactoryResolver.resolveComponentFactory(this.widgetRegistry.getWidget(val.type));
-		const componentRef = ref.createComponent(componentFactory);
+		const componentRef = ref.createComponent(this.widgetRegistry.getWidget(val.type));
 		const instance = <AbstractWidget>componentRef.instance;
 		instance.entity = entity;
 		instance.key = key;

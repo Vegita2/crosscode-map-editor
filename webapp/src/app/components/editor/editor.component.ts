@@ -1,7 +1,9 @@
-import {Component, ViewChild} from '@angular/core';
-import {MatSidenav} from '@angular/material/sidenav';
-import {AddEntityMenuService} from './add-entity-menu.service';
-import {LoadMapComponent} from '../load-map/load-map.component';
+import { Component, ViewChild } from '@angular/core';
+import { MatSidenav } from '@angular/material/sidenav';
+
+import { AddEntityMenuService } from '../../services/add-entity-menu.service';
+import { LoadMapComponent } from '../dialogs/load-map/load-map.component';
+import { JsonLoaderService } from '../../services/json-loader.service';
 
 @Component({
 	selector: 'app-editor',
@@ -10,13 +12,22 @@ import {LoadMapComponent} from '../load-map/load-map.component';
 })
 export class EditorComponent {
 	@ViewChild('loadmap', {static: true})
-	loadmap!: LoadMapComponent;
+		loadmap!: LoadMapComponent;
 	
 	@ViewChild('sidenavLoadMap', {static: true})
-	sidenavLoadMap!: MatSidenav;
+		sidenavLoadMap!: MatSidenav;
 	
-	constructor(addEntity: AddEntityMenuService) {
+	constructor(
+		addEntity: AddEntityMenuService,
+		jsonLoader: JsonLoaderService
+	) {
 		addEntity.init();
+		
+		// makes sure they are synchronously available
+		jsonLoader.loadJsonMerged('actions.json');
+		jsonLoader.loadJsonMerged('events.json');
+		jsonLoader.loadJsonMerged('map-styles.json');
+		
 	}
 	
 	loadMapClicked() {

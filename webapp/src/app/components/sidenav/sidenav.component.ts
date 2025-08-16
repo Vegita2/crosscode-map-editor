@@ -1,10 +1,10 @@
 import { Component, OnInit, ViewEncapsulation } from '@angular/core';
-import { MapLoaderService } from '../../shared/map-loader.service';
-import { CCMap } from '../../shared/phaser/tilemap/cc-map';
-import { CCMapLayer } from '../../shared/phaser/tilemap/cc-map-layer';
-import { EditorView } from '../../models/editor-view';
-import { GlobalEventsService } from '../../shared/global-events.service';
 import { MatTabChangeEvent } from '@angular/material/tabs';
+import { EditorView } from '../../models/editor-view';
+import { GlobalEventsService } from '../../services/global-events.service';
+import { MapLoaderService } from '../../services/map-loader.service';
+import { CCMap } from '../../services/phaser/tilemap/cc-map';
+import { CCMapLayer } from '../../services/phaser/tilemap/cc-map-layer';
 
 @Component({
 	selector: 'app-sidenav',
@@ -15,9 +15,7 @@ import { MatTabChangeEvent } from '@angular/material/tabs';
 export class SidenavComponent implements OnInit {
 
 	activeTab = EditorView.Layers;
-	selectedLayer?: CCMapLayer;
 	tilemap?: CCMap;
-	editorViewEnum = EditorView;
 	disableLayersTab = false;
 
 	constructor(
@@ -27,11 +25,6 @@ export class SidenavComponent implements OnInit {
 	}
 
 	ngOnInit() {
-		this.mapLoader.selectedLayer.subscribe(layer => {
-			if (layer) {
-				this.selectedLayer = layer;
-			}
-		});
 		this.mapLoader.tileMap.subscribe(tilemap => {
 			this.tilemap = tilemap;
 			const currentView = this.globalEvents.currentView;

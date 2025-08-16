@@ -1,6 +1,6 @@
-import { Component, OnInit, Input, EventEmitter, Output } from '@angular/core';
-import {CrossCodeMap} from '../../../../models/cross-code-map';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import * as mapSettingsjson from '../../../../../assets/map-settings.json';
+import { CrossCodeMap } from '../../../../models/cross-code-map';
 
 @Component({
 	selector: 'app-map-content-settings',
@@ -19,8 +19,9 @@ export class MapContentSettingsComponent implements OnInit {
 	}>();
 	mapSettings = mapSettingsjson.default;
 	
-	constructor() { }
-
+	constructor() {
+	}
+	
 	ngOnInit() {
 		
 		if (this.settings.levels.length < 1) {
@@ -53,12 +54,23 @@ export class MapContentSettingsComponent implements OnInit {
 			// Parent won't update field if same value
 			// force update value property
 			numElement.value = value + '';
-
+			
 			this.onSettingsChange.emit({
 				property,
 				value
 			});
 		}
 	}
-
+	
+	guessHeight(): number {
+		const levels = this.settings.levels;
+		if (levels.length === 0) {
+			return 0;
+		}
+		if (levels.length === 1) {
+			return levels[0].height + 16;
+		}
+		const [l1, l2] = levels.slice(-2);
+		return l2.height + (l2.height - l1.height);
+	}
 }

@@ -1,0 +1,31 @@
+@use '@angular/material' as mat;
+
+.bottom-container {
+	bottom: 0;
+
+	z-index: 9999;
+	position: absolute;
+	//pointer-events: none;
+}
+
+.caption {
+	padding: 5px;
+	color: white;
+}
+
+.version {
+	right: 0;
+}
+
+.bottom-elements {
+	display: flex;
+	gap: 8px;
+
+	&:empty {
+		display: none;
+	}
+
+	& .caption {
+		background-color: #0005;
+	}
+}

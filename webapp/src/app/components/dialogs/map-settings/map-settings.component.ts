@@ -1,8 +1,10 @@
-import {Component} from '@angular/core';
-import {CrossCodeMap} from '../../../models/cross-code-map';
-import {MapLoaderService} from '../../../shared/map-loader.service';
-import {CCMap} from '../../../shared/phaser/tilemap/cc-map';
-import {OverlayRefControl} from '../../../shared/overlay/overlay-ref-control';
+import { Component } from '@angular/core';
+
+import { CrossCodeMap } from '../../../models/cross-code-map';
+import { MapLoaderService } from '../../../services/map-loader.service';
+import { CCMap } from '../../../services/phaser/tilemap/cc-map';
+import { OverlayRefControl } from '../overlay/overlay-ref-control';
+import { GlobalEventsService } from '../../../services/global-events.service';
 
 @Component({
 	selector: 'app-map-settings',
@@ -19,7 +21,8 @@ export class MapSettingsComponent {
 	
 	constructor(
 		loader: MapLoaderService,
-		public ref: OverlayRefControl
+		public ref: OverlayRefControl,
+		private events: GlobalEventsService
 	) {
 		const tileMap = loader.tileMap.getValue();
 		
@@ -55,7 +58,12 @@ export class MapSettingsComponent {
 		tileMap.masterLevel = settings.masterLevel;
 		tileMap.attributes = settings.attributes;
 		
-		tileMap.resize(settings.mapWidth, settings.mapHeight);
+		this.events.resizeMap.next({
+			x: settings.mapWidth,
+			y: settings.mapHeight
+		});
+		
+		this.events.updateEntities.next(true);
 		
 		this.ref.close();
 	}

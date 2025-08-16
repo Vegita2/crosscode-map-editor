@@ -1,12 +1,14 @@
-import {Component, OnInit, ViewEncapsulation} from '@angular/core';
-import {CCMap} from '../../shared/phaser/tilemap/cc-map';
-import {CCMapLayer} from '../../shared/phaser/tilemap/cc-map-layer';
-import {MapLoaderService} from '../../shared/map-loader.service';
-import {GlobalEventsService} from '../../shared/global-events.service';
-import {CdkDragDrop, moveItemInArray} from '@angular/cdk/drag-drop';
-import {StateHistoryService} from '../../shared/history/state-history.service';
-import {Globals} from '../../shared/globals';
+import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
+import { Component, OnInit, ViewEncapsulation } from '@angular/core';
+import { firstValueFrom } from 'rxjs';
+
+import { GlobalEventsService } from '../../services/global-events.service';
+import { Globals } from '../../services/globals';
 import { HttpClientService } from '../../services/http-client.service';
+import { MapLoaderService } from '../../services/map-loader.service';
+import { CCMap } from '../../services/phaser/tilemap/cc-map';
+import { CCMapLayer } from '../../services/phaser/tilemap/cc-map-layer';
+import { StateHistoryService } from '../dialogs/floating-window/history/state-history.service';
 
 @Component({
 	selector: 'app-layers',
@@ -22,10 +24,13 @@ export class LayersComponent implements OnInit {
 	newLayerName = '';
 	tilesets: string[] = []; //Angular view data
 	
+	width = 0;
+	height = 0;
+	
 	constructor(private mapLoader: MapLoaderService,
-				private stateHistory: StateHistoryService,
-				private http: HttpClientService,
-				events: GlobalEventsService) {
+		private stateHistory: StateHistoryService,
+		private http: HttpClientService,
+		events: GlobalEventsService) {
 		events.toggleVisibility.subscribe(() => {
 			if (this.selectedLayer) {
 				this.toggleVisibility({
@@ -34,17 +39,27 @@ export class LayersComponent implements OnInit {
 				} as Event, this.selectedLayer);
 			}
 		});
-
+		
 		this.loadTilesets();
 	}
 	
 	ngOnInit() {
-		this.mapLoader.selectedLayer.subscribe(layer => this.selectedLayer = layer);
+		this.mapLoader.selectedLayer.subscribe(layer => {
+			this.selectedLayer = layer;
+			for (const layer of (this.map?.layers ?? [])) {
+				layer.select(false);
+			}
+			if (layer) {
+				layer.select(true);
+				this.width = layer.details.width;
+				this.height = layer.details.height;
+			}
+		});
 		this.mapLoader.tileMap.subscribe(tilemap => this.map = tilemap);
 	}
 	
 	getDisplayName(layer: CCMapLayer): string {
-		return `${layer.details.name} (${layer.details.level})`;
+		return `${layer.details.name} (${layer.details.levelName ?? layer.details.level})`;
 	}
 	
 	toggleVisibility(event: Event, layer: CCMapLayer) {
@@ -115,9 +130,6 @@ export class LayersComponent implements OnInit {
 	}
 	
 	selectLayer(layer?: CCMapLayer) {
-		if (layer) {
-			layer.visible = true;
-		}
 		this.mapLoader.selectedLayer.next(layer);
 	}
 	
@@ -128,26 +140,41 @@ export class LayersComponent implements OnInit {
 		this.selectedLayer.updateTileset(name);
 		this.mapLoader.selectedLayer.next(this.selectedLayer);
 	}
-
+	
 	getTilesetName(path: string): string {
 		return path.substring('media/map/'.length, path.length - '.png'.length);
 	}
-
+	
 	private async loadTilesets() {
 		if (LayersComponent.tilesets.length > 0) {
 			this.tilesets = LayersComponent.tilesets;
 			return;
 		}
-
-		LayersComponent.tilesets = await this.http.getAllTilesets().toPromise();
+		
+		LayersComponent.tilesets = await firstValueFrom(this.http.getAllTilesets());
 		this.tilesets = LayersComponent.tilesets;
 	}
 	
-	updateLevel(level: number) {
+	updateLevel(level: number | string) {
 		if (!this.selectedLayer) {
 			throw new Error('no layer selected');
 		}
 		this.selectedLayer.updateLevel(level);
+	}
+	
+	updateSize() {
+		this.selectedLayer?.resize(this.width, this.height);
+		this.stateHistory.saveState({
+			name: 'Layer resized',
+			icon: 'resize'
+		});
+	}
+	
+	updateDistance() {
+		this.stateHistory.saveState({
+			name: 'Distance changed',
+			icon: 'fit_screen'
+		});
 	}
 	
 	drop(event: CdkDragDrop<string[]>) {
@@ -158,10 +185,10 @@ export class LayersComponent implements OnInit {
 			throw new Error('tilemap not defined');
 		}
 		moveItemInArray(this.map.layers, event.previousIndex, event.currentIndex);
+		this.map.updateLayerIndices();
 		this.stateHistory.saveState({
 			name: 'Layer moved',
 			icon: 'open_with',
 		}, true);
 	}
-	
 }

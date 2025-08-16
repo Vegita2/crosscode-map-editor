@@ -1,0 +1,51 @@
+@use '@angular/material' as mat;
+@import "theme";
+
+$primary: map-get($theme, primary);
+$accent: map-get($theme, accent);
+
+$listItemHeight: 28px;
+
+.history-container {
+	position: relative;
+	background-color: mat.get-color-from-palette($accent, 800);
+	height: 100%;
+	width: 100%;
+}
+
+.history-list {
+	overflow-y: auto;
+}
+
+.button-container {
+	padding-right: 16px;
+	margin-bottom: 8px;
+}
+
+
+.history-list-item {
+	transition: background-color 100ms linear;
+	height: $listItemHeight;
+	width: 100% !important;
+	text-transform: none;
+	justify-content: start !important;
+	.mat-button-wrapper {
+		line-height: 1em;
+	}
+}
+
+.history-is-future{
+	color: mat.get-color-from-palette(mat.$grey-palette, 500);
+}
+
+.item-selected {
+	background-color: mat.get-color-from-palette(mat.$grey-palette, 700) !important;
+}
+
+.history-list-icon {
+	padding-right: 8px;
+	$size: 18px;
+	font-size: $size;
+	height: $size !important;
+	width: $size !important;
+}

@@ -1,22 +1,28 @@
-import { Component, ElementRef, HostListener, OnInit } from '@angular/core';
-import { MapLoaderService } from '../../shared/map-loader.service';
-import { GlobalEventsService } from '../../shared/global-events.service';
-import { Globals } from '../../shared/globals';
-import { HttpClientService } from '../../services/http-client.service';
-import { StateHistoryService } from '../../shared/history/state-history.service';
-import { PhaserEventsService } from '../../shared/phaser/phaser-events.service';
+import { AfterViewInit, Component, ElementRef, HostListener, ViewChild } from '@angular/core';
 import * as Phaser from 'phaser';
-import { MainScene } from '../../shared/phaser/main-scene';
-import { HeightMapService } from '../../services/height-map/height-map.service';
+
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { AutotileService } from '../../services/autotile/autotile.service';
-import { EntityRegistryService } from '../../shared/phaser/entities/registry/entity-registry.service';
+import { GlobalEventsService } from '../../services/global-events.service';
+import { Globals } from '../../services/globals';
+import { HeightMapService } from '../../services/height-map/height-map.service';
+import { HttpClientService } from '../../services/http-client.service';
+import { MapLoaderService } from '../../services/map-loader.service';
+import { EntityRegistryService } from '../../services/phaser/entities/registry/entity-registry.service';
+import { MainScene } from '../../services/phaser/main-scene';
+import { PhaserEventsService } from '../../services/phaser/phaser-events.service';
+import { SettingsService } from '../../services/settings.service';
+import { StateHistoryService } from '../dialogs/floating-window/history/state-history.service';
+import { JsonLoaderService } from '../../services/json-loader.service';
 
 @Component({
 	selector: 'app-phaser',
 	templateUrl: './phaser.component.html',
 	styleUrls: ['./phaser.component.scss']
 })
-export class PhaserComponent implements OnInit {
+export class PhaserComponent implements AfterViewInit {
+
+	@ViewChild('content', { static: true }) content!: ElementRef<HTMLElement>;
 
 	constructor(
 		private element: ElementRef,
@@ -26,8 +32,11 @@ export class PhaserComponent implements OnInit {
 		private phaserEventsService: PhaserEventsService,
 		private heightMap: HeightMapService,
 		private http: HttpClientService,
+		snackbar: MatSnackBar,
 		registry: EntityRegistryService,
-		autotile: AutotileService
+		autotile: AutotileService,
+		settingsService: SettingsService,
+		jsonLoader: JsonLoaderService,
 	) {
 		Globals.stateHistoryService = stateHistory;
 		Globals.mapLoaderService = mapLoader;
@@ -36,10 +45,13 @@ export class PhaserComponent implements OnInit {
 		Globals.autotileService = autotile;
 		Globals.entityRegistry = registry;
 		Globals.httpService = http;
+		Globals.snackbar = snackbar;
+		Globals.settingsService = settingsService;
+		Globals.jsonLoader = jsonLoader;
 	}
 
 
-	ngOnInit() {
+	ngAfterViewInit() {
 		this.heightMap.init();
 		const scene = new MainScene();
 		const scale = this.getScale();
@@ -72,12 +84,14 @@ export class PhaserComponent implements OnInit {
 			scale.width,
 			scale.height
 		);
+		Globals.game.scale.setZoom(1 / window.devicePixelRatio);
 	}
 
 	private getScale() {
+		const rect = this.content.nativeElement.getBoundingClientRect();
 		return {
-			width: window.innerWidth * window.devicePixelRatio,
-			height: window.innerHeight * window.devicePixelRatio - 64
+			width: rect.width * window.devicePixelRatio,
+			height: rect.height * window.devicePixelRatio
 		};
 	}
 }

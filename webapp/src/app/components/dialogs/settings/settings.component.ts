@@ -1,12 +1,15 @@
 import { Component, OnInit } from '@angular/core';
-import { OverlayRefControl } from '../../../shared/overlay/overlay-ref-control';
-import { ElectronService } from '../../../services/electron.service';
 import { FormControl } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { HttpClientService } from '../../../services/http-client.service';
-import { Globals } from '../../../shared/globals';
+
 import { BrowserService } from '../../../services/browser.service';
-import { SharedService } from '../../../services/sharedService';
+import { ElectronService } from '../../../services/electron.service';
+import { Globals } from '../../../services/globals';
+import { HttpClientService } from '../../../services/http-client.service';
+import { AppSettings, SettingsService } from '../../../services/settings.service';
+import { SharedService } from '../../../services/shared-service';
+import { PropListCard } from '../../widgets/shared/image-select-overlay/image-select-card/image-select-card.component';
+import { OverlayRefControl } from '../overlay/overlay-ref-control';
 
 @Component({
 	selector: 'app-settings',
@@ -19,8 +22,20 @@ export class SettingsComponent implements OnInit {
 	folderFormControl = new FormControl();
 	icon = 'help_outline';
 	iconCss = 'icon-undefined';
-	mods: string[] = [];
+	mods: { id: string, displayName: string }[] = [];
 	mod = '';
+	settings: AppSettings;
+	isIncludeVanillaMapsDisabled: boolean;
+
+	cardLight: PropListCard = {
+		name: 'Light',
+		imgSrc: 'assets/selection-light.png',
+	};
+
+	cardDark: PropListCard = {
+		name: 'Dark',
+		imgSrc: 'assets/selection-dark.png',
+	};
 
 	private readonly sharedService: SharedService;
 
@@ -28,6 +43,7 @@ export class SettingsComponent implements OnInit {
 		private ref: OverlayRefControl,
 		private electron: ElectronService,
 		private browser: BrowserService,
+		private settingsService: SettingsService,
 		private snackBar: MatSnackBar,
 		http: HttpClientService
 	) {
@@ -39,6 +55,8 @@ export class SettingsComponent implements OnInit {
 
 		http.getMods().subscribe(mods => this.mods = mods);
 		this.mod = this.sharedService.getSelectedMod();
+		this.isIncludeVanillaMapsDisabled = !this.mod;
+		this.settings = JSON.parse(JSON.stringify(this.settingsService.getSettings()));
 	}
 
 	ngOnInit() {
@@ -84,11 +102,16 @@ export class SettingsComponent implements OnInit {
 		}
 	}
 
+	modSelectEvent(selectedMod: string) {
+		this.isIncludeVanillaMapsDisabled = !selectedMod;
+	}
+
 	save() {
 		if (this.isElectron) {
 			this.electron.saveAssetsPath(this.folderFormControl.value);
 		}
 		this.sharedService.saveModSelect(this.mod);
+		this.settingsService.updateSettings(this.settings);
 		this.close();
 		const ref = this.snackBar.open('Changing the path requires to restart the editor', 'Restart', {
 			duration: 6000

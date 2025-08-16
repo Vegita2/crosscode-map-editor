@@ -11,7 +11,7 @@
 				"build": {
 					"builder": "@angular-devkit/build-angular:browser",
 					"options": {
-						"showCircularDependencies": false,
+						"allowedCommonJsDependencies": ["earcut", "jsoneditor"],
 						"outputPath": "distAngular",
 						"index": "src/index.html",
 						"main": "src/main.ts",
@@ -29,14 +29,20 @@
 								"src/styles"
 							]
 						},
-						"scripts": []
+						"scripts": [],
+						"aot": true,
+						"vendorChunk": true,
+						"extractLicenses": false,
+						"buildOptimizer": true,
+						"sourceMap": true,
+						"optimization": false,
+						"namedChunks": true
 					},
 					"configurations": {
 						"production": {
 							"optimization": true,
 							"outputHashing": "all",
 							"sourceMap": false,
-							"extractCss": true,
 							"namedChunks": false,
 							"aot": true,
 							"extractLicenses": true,
@@ -53,19 +59,19 @@
 				},
 				"serve": {
 					"builder": "@angular-devkit/build-angular:dev-server",
-					"options": {
-						"browserTarget": "map-editor:build"
+          "options": {
+            "buildTarget": "map-editor:build"
 					},
 					"configurations": {
-						"production": {
-							"browserTarget": "map-editor:build:production"
+            "production": {
+              "buildTarget": "map-editor:build:production"
 						}
 					}
 				},
 				"extract-i18n": {
 					"builder": "@angular-devkit/build-angular:extract-i18n",
-					"options": {
-						"browserTarget": "map-editor:build"
+          "options": {
+            "buildTarget": "map-editor:build"
 					}
 				},
 				"test": {
@@ -95,21 +101,16 @@
 					"builder": "@angular-eslint/builder:lint",
 					"options": {
 						"lintFilePatterns": ["src/**/*.ts"],
-						"eslintConfig": "./.eslintrc.json",
-						"exclude": [
-							"**/node_modules/**",
-							"**/*.html"
-						]
+						"eslintConfig": "./.eslintrc.json"
 					}
 				}
 			}
 		}
-	},
-	"defaultProject": "map-editor",
+  },
 	"schematics": {
 		"@schematics/angular:component": {
 			"prefix": "app",
-			"styleext": "scss"
+			"style": "scss"
 		},
 		"@schematics/angular:directive": {
 			"prefix": "app"

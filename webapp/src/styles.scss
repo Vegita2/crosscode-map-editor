@@ -1,13 +1,28 @@
 /* You can add global styles to this file, and also import other style files */
+@use '@angular/material' as mat;
 @import "reset";
-@import "~@angular/material/theming";
 @import "jsoneditor/darktheme";
 
-@include mat-core();
+@include mat.core();
 
 @import "theme";
 
-$config: mat-typography-config();
+@tailwind base;
+@tailwind utilities;
+
+$config: mat.define-typography-config();
+
+// Use the default configuration.
+$my-typography: mat.define-typography-config();
+@include mat.typography-hierarchy($my-typography);
+
+
+// tailwind base makes angular material icon buttons off-center. This fixes it
+@layer base {
+	button {
+		line-height: normal;
+	}
+}
 
 html * {
 	font-family: Roboto, "Helvetica Neue", sans-serif;
@@ -17,31 +32,70 @@ body {
 	overflow: hidden;
 }
 
+.no-error-msg .mat-mdc-form-field-subscript-wrapper {
+	display: none !important;
+}
+
 // no scrollbars when dragging history outside
 .mat-drawer-content {
 	overflow: hidden !important;
 }
 
 .theme {
-	@include angular-material-theme($theme)
+	@include mat.all-component-themes($theme);
+
+	.mat-drawer-backdrop.mat-drawer-shown {
+		background: rgba(0, 0, 0, 0.32);
+	}
+
+	@include mat.form-field-density(-3);
 }
 
-.theme .mat-drawer-backdrop.mat-drawer-shown {
-	background: rgba(0, 0, 0, 0.32);
-}
 
 .default-input {
-	$font-type: subheading-1;
-	font-family: mat-font-family($config);
-	font-size: mat-font-size($config, $font-type);
-	font-weight: mat-font-weight($config, $font-type);
+	$font-type: subtitle-1;
+	font-family: mat.font-family($config);
+	font-size: mat.font-size($config, $font-type);
+	font-weight: mat.font-weight($config, $font-type);
 	height: 24px;
 	color: white;
 	outline: solid 1px #c9c9c9;
 	//transition: border 0.3s;
+
+	&:disabled {
+		outline-offset: 0;
+		outline: dotted 1px rgba(201, 201, 201, 0.34);
+		color: rgba(255, 255, 255, 0.5);
+	}
+
+	&:focus, &.focus {
+		outline-offset: 0;
+		outline: solid 1px mat.get-color-from-palette(mat.$blue-palette, 500);
+	}
+
+
+	&.mat-mdc-select {
+		line-height: 24px;
+		outline: solid 1px #c9c9c9 !important;
+		padding-left: 4px;
+		padding-right: 4px;
+
+
+		&:disabled {
+			outline: dotted 1px rgba(201, 201, 201, 0.34) !important;
+		}
+
+		&:focus, &.focus {
+			outline: solid 1px mat.get-color-from-palette(mat.$blue-palette, 500) !important;
+		}
+
+		& .mat-select-value-text {
+			padding-left: 4px;
+		}
+	}
 }
 
-input[type=text].default-input, input:not([type]).default-input {
+input[type=text].default-input, input:not([type]).default-input, input[type=number].default-input {
 	padding-left: 4px;
 }
 
@@ -49,17 +103,6 @@ input[type=text].default-input, input:not([type]).default-input {
 	width: 60px;
 }
 
-.default-input:disabled {
-	outline-offset: 0;
-	outline: dotted 1px rgba(201, 201, 201, 0.34);
-	color: rgba(255, 255, 255, 0.5);
-}
-
-.default-input:focus,
-.default-input.focus {
-	outline-offset: 0;
-	outline: solid 1px mat-color($mat-blue, 500);
-}
 
 button {
 	//text-transform: uppercase;
@@ -84,7 +127,7 @@ button {
 // sick scrollbar
 .dark-scrollbar {
 	&::-webkit-scrollbar-track {
-		background-color: mat-color($accent, 800);
+		background-color: mat.get-color-from-palette($accent, 800);
 	}
 
 	&::-webkit-scrollbar {
@@ -93,13 +136,18 @@ button {
 	}
 
 	&::-webkit-scrollbar-thumb {
-		background-color: mat-color($accent, 600);
+		background-color: mat.get-color-from-palette($accent, 600);
 	}
 
 	// non standard value, makes scrollbar not take additional space.
 	// More information: https://stackoverflow.com/a/43051077/5244460
 	// noinspection CssInvalidPropertyValue
 	overflow: overlay;
+}
+
+.dark-scrollbar-auto {
+	@extend .dark-scrollbar;
+	overflow: auto;
 }
 
 .small-dark-scrollbar {
@@ -113,4 +161,48 @@ button {
 
 .highlight {
 	color: #69bdfc;
+}
+
+.no-padding-form-field {
+	.mat-mdc-form-field-subscript-wrapper {
+		display: none;
+	}
+}
+
+.autoscale-form-field {
+	min-width: 0;
+	flex: 1;
+	width: 100%;
+
+
+	.mat-mdc-form-field-infix {
+		width: 0;
+	}
+}
+
+html, body {
+	height: 100%;
+}
+
+body {
+	margin: 0;
+	font-family: Roboto, "Helvetica Neue", sans-serif;
+}
+
+.newline-tooltip {
+	white-space: pre-line;
+}
+
+.snackbar-error {
+	> * {
+		background: mat.get-color-from-palette(mat.$red-palette, 700) !important;
+	}
+
+	button {
+		color: white !important;
+	}
+
+	.mat-mdc-snack-bar-label {
+		color: white !important;
+	}
 }

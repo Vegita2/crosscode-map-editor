@@ -1,9 +1,0 @@
-<div fxLayout="row" class="property-container" [matTooltip]="attribute?.description">
-	<label [for]="key" class="property-name">{{key}}:</label>
-	<mat-checkbox [id]="key"
-	              color="primary"
-	              [checked]="settings[key]"
-	              (change)="setSetting(key, $event.checked)">
-		<div style="width: 150px"></div>
-	</mat-checkbox>
-</div>

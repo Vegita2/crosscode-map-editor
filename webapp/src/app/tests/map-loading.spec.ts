@@ -1,13 +1,14 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-
-import { MapLoaderService } from '../shared/map-loader.service';
-import { SharedModule } from '../shared/shared.module';
 import { HttpClientModule } from '@angular/common/http';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { firstValueFrom } from 'rxjs';
+import { AppModule } from '../app.module';
+
+import { StateHistoryService } from '../components/dialogs/floating-window/history/state-history.service';
 import { PhaserComponent } from '../components/phaser/phaser.component';
-import { StateHistoryService } from '../shared/history/state-history.service';
 import { AutotileService } from '../services/autotile/autotile.service';
 import { HeightMapService } from '../services/height-map/height-map.service';
 import { HttpClientService } from '../services/http-client.service';
+import { MapLoaderService } from '../services/map-loader.service';
 import { TestHelper } from './test-helper';
 
 class SimpleServiceMock {
@@ -15,13 +16,14 @@ class SimpleServiceMock {
 	}
 }
 
+// TODO: fix map loading, order of entities doesn't matter
 describe('Map Loading', () => {
 	let component: PhaserComponent;
 	let fixture: ComponentFixture<PhaserComponent>;
 	
 	beforeEach(() => TestBed.configureTestingModule({
 		declarations: [PhaserComponent],
-		imports: [SharedModule, HttpClientModule],
+		imports: [AppModule, HttpClientModule],
 		providers: [
 			{provide: AutotileService, useValue: new SimpleServiceMock()},
 			{provide: HeightMapService, useValue: new SimpleServiceMock()},
@@ -56,7 +58,7 @@ describe('Map Loading', () => {
 		const service: MapLoaderService = TestBed.get(MapLoaderService);
 		const http: HttpClientService = TestBed.get(HttpClientService);
 		
-		const paths = await http.getMaps().toPromise();
+		const paths = await firstValueFrom(http.getMaps());
 		
 		const autumn = paths.filter(p => p.startsWith('autumn.')).slice(0, 5);
 		const arid = paths.filter(p => p.startsWith('arid.')).slice(0, 5);

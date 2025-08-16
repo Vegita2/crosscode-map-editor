@@ -1,4 +1,4 @@
-import { DetailSettings } from '../shared/phaser/entities/cc-entity';
+import { DetailSettings } from '../services/phaser/entities/cc-entity';
 
 export interface CrossCodeMap {
 	name: string;
@@ -22,6 +22,10 @@ export interface Point {
 
 export interface Point3 extends Point {
 	z: number;
+}
+
+export interface PartialPoint3 extends Point {
+	z?: number;
 }
 
 export interface Attributes {
@@ -54,6 +58,7 @@ export interface MapLayer {
 	visible: number;
 	tilesetName: string;
 	repeat: boolean;
+	lighter?: boolean;
 	distance: number;
 	tilesize: number;
 	moveSpeed: Point;

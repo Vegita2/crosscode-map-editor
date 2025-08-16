@@ -1,6 +1,6 @@
-@import "~@angular/material/theming";
+@use '@angular/material' as mat;
 
-$config: mat-typography-config();
+$config: mat.define-typography-config();
 
 h2 {
 	margin-left: 14px;
@@ -16,7 +16,7 @@ h2 {
 }
 
 .filter {
-	padding: 4px 16px 0;
+	padding: 8px 16px 0;
 }
 
 ::ng-deep {

@@ -1,26 +1,14 @@
-@import "~@angular/material/theming";
+@use '@angular/material' as mat;
 
 .elevated-toolbar {
 	position: relative;
 	z-index: 2;
 }
 
-.toggle-3d{
-	margin-left: 16px;
-}
-
 mat-spinner {
 	height: 40px;
 }
 
-.version {
-	bottom: 5px;
-	right: 5px;
-	color: white;
-	z-index: 9999;
-	position: absolute;
-}
-
-.load-error{
-	color: mat-color($mat-red, 500);
+.load-error {
+	color: mat.get-color-from-palette(mat.$red-palette, 500);
 }

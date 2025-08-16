@@ -1,12 +1,8 @@
-import {requireLocal} from '../require';
-
-import * as nodefs from 'fs';
-import * as nodepath from 'path';
-
-const fs: typeof nodefs = requireLocal('fs');
-const path: typeof nodepath = requireLocal('path');
+import { fsPromise, pathPromise } from '../require.js';
 
 export async function saveFile(assetsPath: string, file: { content: string, path: string }) {
+	const fs = await fsPromise;
+	const path = await pathPromise;
 	
 	const fullPath = path.join(assetsPath, file.path);
 	fs.promises.mkdir(path.dirname(fullPath), {recursive: true});
