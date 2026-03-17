@@ -13,12 +13,22 @@ import { FormsModule } from '@angular/forms';
     imports: [FlexModule, MatTooltip, FormsModule]
 })
 export class JsonWidgetComponent extends AbstractWidget {
+	private readonly defaultRows = 2;
+	private readonly autoExpandMaxRows = 5;
 	private dialog = inject(MatDialog);
 
 	
 	@Input() noPropName = false;
 	private timer = -1;
-	json = JSON;
+
+	getJsonValue(value: unknown): string {
+		return JSON.stringify(value, null, 2);
+	}
+
+	getRows(value: unknown): number {
+		const lineCount = this.getJsonValue(value).split('\n').length;
+		return lineCount <= this.autoExpandMaxRows ? lineCount : this.defaultRows;
+	}
 	
 	openJsonEditor() {
 		const ref = this.dialog.open(JsonEditorComponent, {
